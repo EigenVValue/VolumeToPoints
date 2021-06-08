@@ -9,10 +9,34 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="Process Code">
+      <UniqueIdentifier>{2331f477-6727-43cb-847c-bf33a8d6b767}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="demo.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MCCube.cpp">
+      <Filter>Process Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Volume.cpp">
+      <Filter>Process Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AreaListVolume.cpp">
+      <Filter>Process Code</Filter>
+    </ClCompile>
+    <ClCompile Include="MCTriangulator.cpp">
+      <Filter>Process Code</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshProperties.cpp">
+      <Filter>Process Code</Filter>
+    </ClCompile>
+    <ClCompile Include="CostomTriangleMesh.cpp">
+      <Filter>Process Code</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshGroup.cpp">
+      <Filter>Process Code</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

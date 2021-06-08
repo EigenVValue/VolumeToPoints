@@ -20,53 +20,45 @@
  * #L%
  */
 
-package marchingcubes;
+#include "thirdparties/include/glm/vec3.hpp"
+#include <vector>
 
-import java.awt.Polygon;
-import java.awt.Rectangle;
-import java.awt.geom.Area;
-import java.awt.geom.PathIterator;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+#include "Carrier.hpp"
 
-import org.scijava.vecmath.Point3f;
+using namespace glm;
 
-import ij.IJ;
-import ij3d.AreaListVolume;
-import ij3d.Volume;
+class MCCube {
 
-public final class MCCube {
-
+	
+private:
 	// vertexes
-	private final Point3f[] v;
+	std::vector<vec3> v;
 
 	// interpolated values
-	private final Point3f[] e;
+	std::vector<vec3> e;
 
-	private MCCube() {
-		this.v = new Point3f[8];
+	MCCube() {
 		for (int i = 0; i < 8; i++)
-			v[i] = new Point3f();
-		this.e = new Point3f[12];
+			v.push_back(vec3());
+
 		for (int i = 0; i < 12; i++)
-			e[i] = new Point3f();
+			e.push_back(vec3());
 	}
 
 	/**
 	 * initializes a MCCube object _________ 0______x /v0 v1/| /| /________/ | / |
 	 * |v3 v2| /v5 y/ |z |________|/ v7 v6
 	 */
-	public void init(final int x, final int y, final int z) {
-		v[0].set(x, y, z);
-		v[1].set(x + 1, y, z);
-		v[2].set(x + 1, y + 1, z);
-		v[3].set(x, y + 1, z);
-		v[4].set(x, y, z + 1);
-		v[5].set(x + 1, y, z + 1);
-		v[6].set(x + 1, y + 1, z + 1);
-		v[7].set(x, y + 1, z + 1);
+public:
+	void init(int x, int y, int z) {
+		v.at(0) = vec3(x, y, z);
+		v.at(1) = vec3(x + 1, y, z);
+		v.at(2) = vec3(x + 1, y + 1, z);
+		v.at(3) = vec3(x, y + 1, z);
+		v.at(4) = vec3(x, y, z + 1);
+		v.at(5) = vec3(x + 1, y, z + 1);
+		v.at(6) = vec3(x + 1, y + 1, z + 1);
+		v.at(7) = vec3(x, y + 1, z + 1);
 	}
 
 	/**
@@ -79,26 +71,28 @@ public final class MCCube {
 	 *          intensity equals the isovalue;
 	 * @return false if the interpolated point is beyond edge boundaries
 	 */
-	private boolean computeEdge(final Point3f v1, final int i1, final Point3f v2,
-		final int i2, final Point3f result, final Carrier car)
+private: 
+	bool computeEdge(vec3 v1, int i1, vec3 v2,
+		int i2, vec3 result,  Carrier car)
 	{
-
 		// 30 --- 50 --- 70 : t=0.5
 		// 70 --- 50 --- 30 : t=0.5
 		// /int i1 = car.intensity(v1);
 		// /int i2 = car.intensity(v2);
-		if (i2 < i1) return computeEdge(v2, i2, v1, i1, result, car);
+		if (i2 < i1) {
+			return computeEdge(v2, i2, v1, i1, result, car);
+		}
 
-		final float t = (car.threshold - i1) / (i2 - i1);
+		float t = (car.threshold - i1) / (i2 - i1);
 		if (t >= 0 && t <= 1) {
 			// v1 + t*(v2-v1)
-			result.set(v2);
-			result.sub(v1);
-			result.scale(t);
-			result.add(v1);
+			result = v2;
+			result -= v1;
+			result /= t;
+			result += v1;
 			return true;
 		}
-		result.set(-1, -1, -1);
+		result = vec3(-1, -1, -1);
 		return false;
 	}
 
@@ -106,30 +100,31 @@ public final class MCCube {
 	 * computes interpolated values along each edge of the cube (null if
 	 * interpolated value doesn't belong to the edge)
 	 */
-	private void computeEdges(final Carrier car) {
-		final int i0 = car.intensity(v[0]);
-		final int i1 = car.intensity(v[1]);
-		final int i2 = car.intensity(v[2]);
-		final int i3 = car.intensity(v[3]);
-		final int i4 = car.intensity(v[4]);
-		final int i5 = car.intensity(v[5]);
-		final int i6 = car.intensity(v[6]);
-		final int i7 = car.intensity(v[7]);
+private: 
+	void computeEdges(Carrier car) {
+		int i0 = car.intensity(v[0]);
+		int i1 = car.intensity(v[1]);
+		int i2 = car.intensity(v[2]);
+		int i3 = car.intensity(v[3]);
+		int i4 = car.intensity(v[4]);
+		int i5 = car.intensity(v[5]);
+		int i6 = car.intensity(v[6]);
+		int i7 = car.intensity(v[7]);
+		
+		this->computeEdge(v[0], i0, v[1], i1, e[0], car);
+		this->computeEdge(v[1], i1, v[2], i2, e[1], car);
+		this->computeEdge(v[2], i2, v[3], i3, e[2], car);
+		this->computeEdge(v[3], i3, v[0], i0, e[3], car);
 
-		this.computeEdge(v[0], i0, v[1], i1, e[0], car);
-		this.computeEdge(v[1], i1, v[2], i2, e[1], car);
-		this.computeEdge(v[2], i2, v[3], i3, e[2], car);
-		this.computeEdge(v[3], i3, v[0], i0, e[3], car);
+		this->computeEdge(v[4], i4, v[5], i5, e[4], car);
+		this->computeEdge(v[5], i5, v[6], i6, e[5], car);
+		this->computeEdge(v[6], i6, v[7], i7, e[6], car);
+		this->computeEdge(v[7], i7, v[4], i4, e[7], car);
 
-		this.computeEdge(v[4], i4, v[5], i5, e[4], car);
-		this.computeEdge(v[5], i5, v[6], i6, e[5], car);
-		this.computeEdge(v[6], i6, v[7], i7, e[6], car);
-		this.computeEdge(v[7], i7, v[4], i4, e[7], car);
-
-		this.computeEdge(v[0], i0, v[4], i4, e[8], car);
-		this.computeEdge(v[1], i1, v[5], i5, e[9], car);
-		this.computeEdge(v[3], i3, v[7], i7, e[10], car);
-		this.computeEdge(v[2], i2, v[6], i6, e[11], car);
+		this->computeEdge(v[0], i0, v[4], i4, e[8], car);
+		this->computeEdge(v[1], i1, v[5], i5, e[9], car);
+		this->computeEdge(v[3], i3, v[7], i7, e[10], car);
+		this->computeEdge(v[2], i2, v[6], i6, e[11], car);
 	}
 
 	/**
@@ -138,17 +133,19 @@ public final class MCCube {
 	 * @param n number of the case to test
 	 * @return true if the case if ambigous
 	 */
-	private static boolean isAmbigous(final int n) {
-		boolean result = false;
-		for (int index = 0; index < MCCube.ambigous.length; index++) {
-			result |= MCCube.ambigous[index] == n;
+private:
+	bool isAmbigous(int n) {
+		bool result = false;
+		for (int index = 0; index < sizeof(ambigous); index++) {
+			result |= ambigous[index] == n;
 		}
 		return result;
 	}
 
-	private void getTriangles(final List<Point3f> list, final Carrier car) {
-		final int cn = caseNumber(car);
-		boolean directTable = !(isAmbigous(cn));
+private:
+	void getTriangles(std::vector<vec3> list, Carrier car) {
+		int cn = caseNumber(car);
+		bool directTable = !(isAmbigous(cn));
 		directTable = true;
 
 		// address in the table
@@ -157,9 +154,9 @@ public final class MCCube {
 			// if there's a triangle
 			if (faces[offset] != -1) {
 				// pick up vertexes of the current triangle
-				list.add(new Point3f(this.e[faces[offset + 0]]));
-				list.add(new Point3f(this.e[faces[offset + 1]]));
-				list.add(new Point3f(this.e[faces[offset + 2]]));
+				list.push_back(vec3(this->e[faces[offset + 0]]));
+				list.push_back(vec3(this->e[faces[offset + 1]]));
+				list.push_back(vec3(this->e[faces[offset + 2]]));
 			}
 			offset += 3;
 		}
@@ -170,26 +167,12 @@ public final class MCCube {
 	 *
 	 * @return the number of the case corresponding to the cube
 	 */
-	private int caseNumber(final Carrier car) {
+private:
+	int caseNumber(Carrier car) {
 		int caseNumber = 0;
-		for (int index = -1; ++index < v.length; caseNumber +=
-			(car.intensity(v[index]) - car.threshold > 0) ? 1 << index : 0);
+		for (int index = -1; ++index < v.size(); 
+			caseNumber += (car.intensity(v[index]) - car.threshold > 0) ? 1 << index : 0);
 		return caseNumber;
-	}
-
-	/**
-	 * An encapsulating class to avoid thread collisions on static fields.
-	 */
-	private static final class Carrier {
-
-		int w, h, d;
-		Volume volume;
-		float threshold;
-
-		final int intensity(final Point3f p) {
-			if (p.x < 0 || p.y < 0 || p.z < 0 || p.x >= w || p.y >= h || p.z >= d) return 0;
-			return volume.load((int)p.x, (int)p.y, (int)p.z);
-		}
 	}
 
 	/**
@@ -200,21 +183,29 @@ public final class MCCube {
 	 * @param thresh
 	 * @return
 	 */
-	public static final List<Point3f> getTriangles(final Volume volume,
-		final int thresh)
+public: 
+	std::vector<vec3> getTriangles(
+		//Volume volume,
+		int volume,
+		int thresh)
 	{
-		final List<Point3f> tri = new ArrayList<Point3f>();
-		final Carrier car = new Carrier();
-		car.w = volume.xDim;
-		car.h = volume.yDim;
-		car.d = volume.zDim;
+		std::vector<vec3> tri;
+		Carrier car = Carrier();
+		//car.w = volume.xDim;
+		//car.h = volume.yDim;
+		//car.d = volume.zDim;
+		car.w = volume;
+		car.h = volume;
+		car.d = volume;
 		car.threshold = thresh + 0.5f;
 		car.volume = volume;
 
-		final MCCube cube = new MCCube();
+		MCCube cube = MCCube();
+		/*
 		if (volume instanceof AreaListVolume) {
 			return getTriangles(cube, (AreaListVolume)volume, car, tri);
 		}
+		*/
 		for (int z = -1; z < car.d + 1; z += 1) {
 			for (int x = -1; x < car.w + 1; x += 1) {
 				for (int y = -1; y < car.h + 1; y += 1) {
@@ -223,15 +214,18 @@ public final class MCCube {
 					cube.getTriangles(tri, car);
 				}
 			}
-			IJ.showProgress(z, car.d - 2);
+			//IJ.showProgress(z, car.d - 2);
 		}
 
 		// convert pixel coordinates
 		for (int i = 0; i < tri.size(); i++) {
-			final Point3f p = tri.get(i);
-			p.x = (float)(p.x * volume.pw + volume.minCoord.x);
-			p.y = (float)(p.y * volume.ph + volume.minCoord.y);
-			p.z = (float)(p.z * volume.pd + volume.minCoord.z);
+			vec3 p = tri.at(i);
+			//p.x = (float)(p.x * volume.pw + volume.minCoord.x);
+			//p.y = (float)(p.y * volume.ph + volume.minCoord.y);
+			//p.z = (float)(p.z * volume.pd + volume.minCoord.z);
+			p.x = (float)(p.x * volume + volume);
+			p.y = (float)(p.y * volume + volume);
+			p.z = (float)(p.z * volume + volume);
 		}
 		return tri;
 	}
@@ -243,11 +237,16 @@ public final class MCCube {
 	 * @param tri the {@link List} to which to add the triangles
 	 * @return the list of triangles
 	 */
-	private static final List<Point3f> getTriangles(final MCCube cube,
-		final AreaListVolume volume, final Carrier car, final List<Point3f> tri)
-	{
 
-		final List<List<Area>> list = volume.getAreas();
+	/*
+private:
+	std::vector<vec3> getTriangles(MCCube cube,
+		//AreaListVolume volume, 
+		int volume,
+		Carrier car,
+		std::vector<vec3> tri)
+	{
+		std::vector<std::vector<Area>> list = volume.getAreas();
 		final Area[] sectionAreas = new Area[list.size()];
 		// Create one Area for each section, composed of the addition of all Shape
 		// instances
@@ -330,15 +329,18 @@ public final class MCCube {
 		}
 		return tri;
 	}
+	*/
 
-	protected static final int ambigous[] = { 250, 245, 237, 231, 222, 219, 189,
+protected:
+	const int ambigous[240] = { 250, 245, 237, 231, 222, 219, 189,
 		183, 175, 126, 123, 95, 234, 233, 227, 214, 213, 211, 203, 199, 188, 186,
 		182, 174, 171, 158, 151, 124, 121, 117, 109, 107, 93, 87, 62, 61, 229, 218,
 		181, 173, 167, 122, 94, 91, 150, 170, 195, 135, 149, 154, 163, 166, 169,
 		172, 180, 197, 202, 210, 225, 165 };
 
 	// triangles to be drawn in each case
-	private static final int faces[] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+private:
+	const int faces[15360] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 		-1, -1, -1, -1, -1, 0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 		-1, 0, 1, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 8, 3, 9, 8,
 		1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 2, 11, -1, -1, -1, -1, -1, -1,
@@ -517,4 +519,4 @@ public final class MCCube {
 		-1, 0, 9, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 3, 8, -1,
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 		-1, -1, -1, -1, -1, -1, -1 };
-}
+};

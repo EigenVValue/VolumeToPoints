@@ -38,5 +38,13 @@
     <ClCompile Include="MeshGroup.cpp">
       <Filter>Process Code</Filter>
     </ClCompile>
+    <ClCompile Include="Carrier.cpp">
+      <Filter>Process Code</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Carrier.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

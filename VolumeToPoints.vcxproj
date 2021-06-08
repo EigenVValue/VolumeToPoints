@@ -125,6 +125,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AreaListVolume.cpp" />
+    <ClCompile Include="Carrier.cpp" />
     <ClCompile Include="CostomTriangleMesh.cpp" />
     <ClCompile Include="demo.cpp" />
     <ClCompile Include="MCCube.cpp" />
@@ -132,6 +133,9 @@
     <ClCompile Include="MeshGroup.cpp" />
     <ClCompile Include="MeshProperties.cpp" />
     <ClCompile Include="Volume.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Carrier.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -238,7 +238,6 @@ public:
 	 * @return the list of triangles
 	 */
 
-	/*
 private:
 	std::vector<vec3> getTriangles(MCCube cube,
 		//AreaListVolume volume, 
@@ -329,7 +328,6 @@ private:
 		}
 		return tri;
 	}
-	*/
 
 protected:
 	const int ambigous[240] = { 250, 245, 237, 231, 222, 219, 189,

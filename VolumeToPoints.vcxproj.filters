@@ -5,12 +5,18 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
+    <Filter Include="Process Code">
+      <UniqueIdentifier>{2331f477-6727-43cb-847c-bf33a8d6b767}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HeaderForMCCube">
+      <UniqueIdentifier>{ab7dbd54-343c-4eeb-9a75-89e99215f7dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HeaderForImagePlus">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Process Code">
-      <UniqueIdentifier>{2331f477-6727-43cb-847c-bf33a8d6b767}</UniqueIdentifier>
+    <Filter Include="HeaderForVolume">
+      <UniqueIdentifier>{beb8086f-4a01-43fe-a747-9427a5f61ee6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -41,10 +47,76 @@
     <ClCompile Include="Carrier.cpp">
       <Filter>Process Code</Filter>
     </ClCompile>
+    <ClCompile Include="ImagePlus.cpp">
+      <Filter>Process Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ImagePlus.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageProcessor.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageWindow.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="Roi.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageJ.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="FileInfo.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageStack.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="Properties.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="Calibration.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageCanvas.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="Overlay.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="Plot.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="Color.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="LUT.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferedImage.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="ByteProcessor.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
     <ClInclude Include="Carrier.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>HeaderForMCCube</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.hpp">
+      <Filter>HeaderForImagePlus</Filter>
+    </ClInclude>
+    <ClInclude Include="Loader.hpp">
+      <Filter>HeaderForVolume</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

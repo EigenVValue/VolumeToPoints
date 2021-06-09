@@ -128,6 +128,7 @@
     <ClCompile Include="Carrier.cpp" />
     <ClCompile Include="CostomTriangleMesh.cpp" />
     <ClCompile Include="demo.cpp" />
+    <ClCompile Include="ImagePlus.cpp" />
     <ClCompile Include="MCCube.cpp" />
     <ClCompile Include="MCTriangulator.cpp" />
     <ClCompile Include="MeshGroup.cpp" />
@@ -135,7 +136,28 @@
     <ClCompile Include="Volume.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BufferedImage.hpp" />
+    <ClInclude Include="ByteProcessor.hpp" />
+    <ClInclude Include="Calibration.hpp" />
     <ClInclude Include="Carrier.hpp" />
+    <ClInclude Include="Color.hpp" />
+    <ClInclude Include="Component.hpp" />
+    <ClInclude Include="FileInfo.hpp" />
+    <ClInclude Include="Image.hpp" />
+    <ClInclude Include="ImageCanvas.hpp" />
+    <ClInclude Include="ImageJ.hpp" />
+    <ClInclude Include="ImagePlus.hpp" />
+    <ClInclude Include="ImageProcessor.hpp" />
+    <ClInclude Include="ImageStack.hpp" />
+    <ClInclude Include="ImageWindow.hpp" />
+    <ClInclude Include="Loader.hpp" />
+    <ClInclude Include="LUT.hpp" />
+    <ClInclude Include="Object.hpp" />
+    <ClInclude Include="Overlay.hpp" />
+    <ClInclude Include="Plot.hpp" />
+    <ClInclude Include="Properties.hpp" />
+    <ClInclude Include="Roi.hpp" />
+    <ClInclude Include="Thread.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

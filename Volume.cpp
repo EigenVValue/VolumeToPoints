@@ -20,17 +20,6 @@
  * #L%
  */
 
-package ij3d;
-
-import java.awt.image.IndexColorModel;
-
-import org.scijava.vecmath.Point3d;
-
-import ij.IJ;
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.measure.Calibration;
-
 /**
  * This class encapsulates an image stack and provides various methods for
  * retrieving data. It is possible to control the loaded color channels of RGB
@@ -41,12 +30,22 @@ import ij.measure.Calibration;
  *
  * @author Benjamin Schmid
  */
-public class Volume {
 
-	private int[] rLUT = new int[256];
-	private int[] gLUT = new int[256];
-	private int[] bLUT = new int[256];
-	private int[] aLUT = new int[256];
+#include <math.h>
+
+#include "ImagePlus.hpp"
+#include "Loader.hpp"
+
+#include "thirdparties/include/glm/glm.hpp"
+
+using namespace glm;
+
+class Volume {
+private:
+	int rLUT[256];
+	int gLUT[256];
+	int bLUT[256];
+	int aLUT[256];
 
 	/**
 	 * Data is read as int data. If the input image is RGB, this is the case if
@@ -54,55 +53,60 @@ public class Volume {
 	 * input image is 8 bit, again this is the case if isDefaultLUT() returns
 	 * false.
 	 */
-	public static final int INT_DATA = 0;
+public:
+	int INT_DATA = 0;
 
 	/**
 	 * Data is read as byte data. If the input image is RGB, this is the case if
 	 * isDefaultLUT() returns true and only a single channel is used. If the input
 	 * image is 8 bit, again this is the case if isDefaultLUT() returns true.
 	 */
-	public static final int BYTE_DATA = 1;
+public:
+	int BYTE_DATA = 1;
 
+protected:
 	/** The image holding the data */
-	protected ImagePlus imp;
+	ImagePlus imp;
 
 	/** Wraping the ImagePlus */
-	protected InputImage image;
+	InputImage image;
 
 	/** The loader, initialized depending on the data type */
-	protected Loader loader;
+	//Loader loader;
 
 	/**
 	 * Indicates in which format the data is loaded. This depends on the image
 	 * type and on the number of selected channels. May be one of INT_DATA or
 	 * BYTE_DATA
 	 */
-	protected int dataType;
+	int dataType;
 
 	/** Flag indicating that the channels should be averaged */
-	protected boolean average = false;
+	bool average = false;
 
 	/** Flag indicating that channels should be saturated */
-	protected boolean saturatedVolumeRendering = false;
+	bool saturatedVolumeRendering = false;
 
 	/** Channels in RGB images which should be loaded */
-	protected boolean[] channels = new boolean[]{ true, true, true };
+	bool channels[3] = { true, true, true };
 
 	/** The dimensions of the data */
-	public int xDim, yDim, zDim;
+public:
+	int xDim, yDim, zDim;
 
 	/** The calibration of the data */
-	public double pw, ph, pd;
+	double pw, ph, pd;
 
 	/** The minimum coordinate of the data */
-	public final Point3d minCoord = new Point3d();
+	vec3 minCoord = vec3();
 
 	/** The maximum coordinate of the data */
-	public final Point3d maxCoord = new Point3d();
+	vec3 maxCoord = vec3();
 
 	/** Create instance with a null imp. */
-	protected Volume() {
-		this.image = null;
+protected:
+	Volume() {
+		this->image = NULL;
 	}
 
 	/**
@@ -110,8 +114,9 @@ public class Volume {
 	 *
 	 * @param imp
 	 */
-	public Volume(final ImagePlus imp) {
-		this(imp, new boolean[]{ true, true, true });
+public:
+	Volume(ImagePlus imp) {
+		//this(imp, new bool[]{ true, true, true });
 	}
 
 	/**
@@ -122,61 +127,64 @@ public class Volume {
 	 *          red, blue and green channel should be read. This has only an
 	 *          effect when reading color images.
 	 */
-	public Volume(final ImagePlus imp, final boolean[] ch) {
+	Volume(ImagePlus imp, bool* ch) {
 		setImage(imp, ch);
 	}
 
-	private void setLUTsFromImage(final ImagePlus imp) {
+private:
+	void setLUTsFromImage(ImagePlus imp) {
 		switch (imp.getType()) {
-		case ImagePlus.GRAY8:
-		case ImagePlus.COLOR_256:
-			final IndexColorModel cm =
-				(IndexColorModel)imp.getProcessor().getCurrentColorModel();
-			for (int i = 0; i < 256; i++) {
-				rLUT[i] = cm.getRed(i);
-				gLUT[i] = cm.getGreen(i);
-				bLUT[i] = cm.getBlue(i);
-				aLUT[i] = Math.min(254, (rLUT[i] + gLUT[i] + bLUT[i]) / 3);
-			}
-			break;
-		case ImagePlus.COLOR_RGB:
-			for (int i = 0; i < 256; i++) {
-				rLUT[i] = gLUT[i] = bLUT[i] = i;
-				aLUT[i] = Math.min(254, i);
-			}
-			break;
-		default:
-			throw new IllegalArgumentException("Unsupported image type");
+			case ImagePlus.GRAY8:
+			case ImagePlus.COLOR_256:
+				IndexColorModel cm = (IndexColorModel)imp.getProcessor().getCurrentColorModel();
+				for (int i = 0; i < 256; i++) {
+					rLUT[i] = cm.getRed(i);
+					gLUT[i] = cm.getGreen(i);
+					bLUT[i] = cm.getBlue(i);
+					aLUT[i] = min(254, (rLUT[i] + gLUT[i] + bLUT[i]) / 3);
+				}
+				break;
+			case ImagePlus.COLOR_RGB:
+				for (int i = 0; i < 256; i++) {
+					rLUT[i] = gLUT[i] = bLUT[i] = i;
+					aLUT[i] = min(254, i);
+				}
+				break;
+			default:
+				return;
 		}
 	}
 
-	public void setImage(final ImagePlus imp, final boolean[] ch) {
-		this.imp = imp;
-		this.channels = ch;
+public:
+	void setImage(ImagePlus imp, bool ch[3]) {
+		this->imp = imp;
+		this->channels[0] = ch[0];
+		this->channels[1] = ch[1];
+		this->channels[2] = ch[2];
 		switch (imp.getType()) {
-		case ImagePlus.GRAY8:
-		case ImagePlus.COLOR_256:
-			image = new ByteImage(imp);
-			break;
-		case ImagePlus.COLOR_RGB:
-			image = new IntImage(imp);
-			break;
-		default:
-			throw new IllegalArgumentException("Unsupported image type");
+			case ImagePlus.GRAY8:
+			case ImagePlus.COLOR_256:
+				image = new ByteImage(imp);
+				break;
+			case ImagePlus.COLOR_RGB:
+				image = new IntImage(imp);
+				break;
+			default:
+				return;
 		}
-		setLUTsFromImage(this.imp);
+		setLUTsFromImage(this->imp);
 
 		xDim = imp.getWidth();
 		yDim = imp.getHeight();
 		zDim = imp.getStackSize();
-		final Calibration c = imp.getCalibration();
+		Calibration c = imp.getCalibration();
 		pw = c.pixelWidth;
 		ph = c.pixelHeight;
 		pd = c.pixelDepth;
 
-		final float xSpace = (float)pw;
-		final float ySpace = (float)ph;
-		final float zSpace = (float)pd;
+		const float xSpace = (float)pw;
+		const float ySpace = (float)ph;
+		const float zSpace = (float)pd;
 
 		// real coords
 		minCoord.x = c.xOrigin;
@@ -191,24 +199,24 @@ public class Volume {
 		initLoader();
 	}
 
-	public ImagePlus getImagePlus() {
+	ImagePlus getImagePlus() {
 		return imp;
 	}
 
-	public void clear() {
-		imp = null;
-		image = null;
-		loader = null;
+	void clear() {
+		imp = NULL;
+		image = NULL;
+		loader = NULL;
 	}
 
-	public void swap(final String path) {
+	void swap(std::string path) {
 		IJ.save(imp, path + ".tif");
-		imp = null;
-		image = null;
-		loader = null;
+		imp = NULL;
+		image = NULL;
+		loader = NULL;
 	}
 
-	public void restore(final String path) {
+	void restore(std::string path) {
 		setImage(IJ.openImage(path + ".tif"), channels);
 	}
 
@@ -216,7 +224,7 @@ public class Volume {
 	 * Checks if the LUTs of all the used color channels and of the alpha channel
 	 * have a default LUT.
 	 */
-	public boolean isDefaultLUT() {
+	bool isDefaultLUT() {
 		for (int i = 0; i < 256; i++) {
 			if ((channels[0] && rLUT[i] != i) || (channels[1] && gLUT[i] != i) ||
 				(channels[2] && bLUT[i] != i) || aLUT[i] != i) return false;
@@ -228,7 +236,7 @@ public class Volume {
 	 * Get the current set data type. This is one of BYTE_DATA or INT_DATA. The
 	 * data type specifies in which format the data is read.
 	 */
-	public int getDataType() {
+	int getDataType() {
 		return dataType;
 	}
 
@@ -238,9 +246,9 @@ public class Volume {
 	 *
 	 * @return true if the value for 'average' has changed.
 	 */
-	public boolean setAverage(final boolean a) {
+	bool setAverage(const bool a) {
 		if (average != a) {
-			this.average = a;
+			this->average = a;
 			initDataType();
 			initLoader();
 			return true;
@@ -254,7 +262,7 @@ public class Volume {
 	 *
 	 * @return
 	 */
-	public boolean isAverage() {
+	bool isAverage() {
 		return average;
 	}
 
@@ -265,9 +273,9 @@ public class Volume {
 	 *
 	 * @return true if the value for 'saturatedVolumeRendering' has changed
 	 */
-	public boolean setSaturatedVolumeRendering(final boolean b) {
-		if (this.saturatedVolumeRendering != b) {
-			this.saturatedVolumeRendering = b;
+	bool setSaturatedVolumeRendering(const bool b) {
+		if (this->saturatedVolumeRendering != b) {
+			this->saturatedVolumeRendering = b;
 			initLoader();
 			return true;
 		}
@@ -277,35 +285,35 @@ public class Volume {
 	/**
 	 * Returns whether if saturatedVolumeRendering is set to true.
 	 */
-	public boolean isSaturatedVolumeRendering() {
+	bool isSaturatedVolumeRendering() {
 		return saturatedVolumeRendering;
 	}
 
 	/**
 	 * Copies the current color table into the given array.
 	 */
-	public void getRedLUT(final int[] lut) {
+	void getRedLUT(const int* lut) {
 		System.arraycopy(rLUT, 0, lut, 0, rLUT.length);
 	}
 
 	/**
 	 * Copies the current color table into the given array.
 	 */
-	public void getGreenLUT(final int[] lut) {
+	void getGreenLUT(const int* lut) {
 		System.arraycopy(gLUT, 0, lut, 0, gLUT.length);
 	}
 
 	/**
 	 * Copies the current color table into the given array.
 	 */
-	public void getBlueLUT(final int[] lut) {
+	void getBlueLUT(const int* lut) {
 		System.arraycopy(bLUT, 0, lut, 0, bLUT.length);
 	}
 
 	/**
 	 * Copies the current color table into the given array.
 	 */
-	public void getAlphaLUT(final int[] lut) {
+	void getAlphaLUT(const int* lut) {
 		System.arraycopy(aLUT, 0, lut, 0, aLUT.length);
 	}
 
@@ -315,9 +323,9 @@ public class Volume {
 	 *
 	 * @return true if the channels settings has changed.
 	 */
-	public boolean setChannels(final boolean[] ch) {
+	bool setChannels(const bool* ch) {
 		if (ch[0] == channels[0] && ch[1] == channels[1] && ch[2] == channels[2]) return false;
-		channels = ch;
+		*channels = ch;
 		if (initDataType()) initLoader();
 		return true;
 	}
@@ -326,13 +334,13 @@ public class Volume {
 	 * Set the lookup tables for this volume. Returns true if the data type of the
 	 * textures have changed.
 	 */
-	public boolean setLUTs(final int[] r, final int[] g, final int[] b,
-		final int[] a)
+	bool setLUTs(const int* r, const int* g, const int* b,
+		const int* a)
 	{
-		this.rLUT = r;
-		this.gLUT = g;
-		this.bLUT = b;
-		this.aLUT = a;
+		*this->rLUT = *r;
+		*this->gLUT = *g;
+		*this->bLUT = *b;
+		*this->aLUT = *a;
 		if (initDataType()) {
 			initLoader();
 			return true;
@@ -344,9 +352,10 @@ public class Volume {
 	 * Set the alpha channel to fully opaque. Returns true if the data type of the
 	 * textures have changed.
 	 */
-	public boolean setAlphaLUTFullyOpaque() {
-		for (int i = 0; i < aLUT.length; i++)
+	bool setAlphaLUTFullyOpaque() {
+		for (int i = 0; i < sizeof(this->aLUT); i++) {
 			aLUT[i] = 254;
+		}
 		if (initDataType()) {
 			initLoader();
 			return true;
@@ -358,9 +367,12 @@ public class Volume {
 	 * Init the loader, based on the currently set data type, which is either
 	 * INT_DATA or BYTE_DATA.
 	 */
-	protected void initLoader() {
-		if (image == null) throw new RuntimeException(
-			"No image. Maybe it is swapped?");
+protected:
+	void initLoader() {
+		if (image == NULL) {
+			printf("No image. Maybe it is swapped?");
+			return;
+		}
 
 		if (dataType == INT_DATA) {
 			loader =
@@ -387,9 +399,11 @@ public class Volume {
 	 * returns true. For RGB images, an additional condition is that only a single
 	 * channel is used. For other cases, the data type is INT_DATA.
 	 */
-	protected boolean initDataType() {
-		if (image == null) throw new RuntimeException(
-			"No image. Maybe it is swapped?");
+	bool initDataType() {
+		if (image == NULL) {
+			printf("No image. Maybe it is swapped?");
+			return;
+		}
 		int noChannels = 0;
 		if (image instanceof ByteImage) {
 			noChannels = 1;
@@ -398,29 +412,31 @@ public class Volume {
 			for (int i = 0; i < 3; i++)
 				if (channels[i]) noChannels++;
 		}
-		final boolean defaultLUT = isDefaultLUT();
-		final int tmp = dataType;
+		const bool defaultLUT = isDefaultLUT();
+		const int tmp = dataType;
 		if (average || (defaultLUT && noChannels < 2)) dataType = BYTE_DATA;
 		else dataType = INT_DATA;
 
 		return tmp != dataType;
 	}
 
-	public void setNoCheck(final int x, final int y, final int z, final int v) {
+	void setNoCheck(const int x, const int y, const int z, const int v) {
 		try {
 			loader.setNoCheck(x, y, z, v);
 		}
-		catch (final NullPointerException e) {
-			throw new RuntimeException("No image. Maybe it is swapped");
+		catch (const std::exception e) {
+			printf("No image. Maybe it is swapped");
+			return;
 		}
 	}
 
-	public void set(final int x, final int y, final int z, final int v) {
+	void set(const int x, const int y, const int z, const int v) {
 		try {
 			loader.set(x, y, z, v);
 		}
-		catch (final NullPointerException e) {
-			throw new RuntimeException("No image. Maybe it is swapped");
+		catch (const std::exception e) {
+			printf("No image. Maybe it is swapped");
+			return;
 		}
 	}
 
@@ -432,12 +448,13 @@ public class Volume {
 	 * @param z
 	 * @return value. Casted to int if it was a byte value before.
 	 */
-	public int load(final int x, final int y, final int z) {
+	int load(const int x, const int y, const int z) {
 		try {
 			return loader.load(x, y, z);
 		}
-		catch (final NullPointerException e) {
-			throw new RuntimeException("No image. Maybe it is swapped");
+		catch (const std::exception e) {
+			printf("No image. Maybe it is swapped");
+			return;
 		}
 	}
 
@@ -449,12 +466,13 @@ public class Volume {
 	 * @param z
 	 * @return int-packed color
 	 */
-	public int loadWithLUT(final int x, final int y, final int z) {
+	int loadWithLUT(const int x, const int y, const int z) {
 		try {
 			return loader.loadWithLUT(x, y, z);
 		}
-		catch (final NullPointerException e) {
-			throw new RuntimeException("No image. Maybe it is swapped");
+		catch (const std::exception e) {
+			printf("No image. Maybe it is swapped");
+			return;
 		}
 	}
 
@@ -466,19 +484,20 @@ public class Volume {
 	 * @param z
 	 * @return value.
 	 */
-	public byte getAverage(final int x, final int y, final int z) {
+	byte getAverage(const int x, const int y, const int z) {
 		try {
 			return image.getAverage(x, y, z);
 		}
-		catch (final NullPointerException e) {
-			throw new RuntimeException("No image. Maybe it is swapped");
+		catch (const std::exception e) {
+			printf("No image. Maybe it is swapped");
+			return;
 		}
 	}
 
 	/**
 	 * Abstract interface for the loader classes.
 	 */
-	protected interface Loader {
+	interface Loader {
 
 		int load(int x, int y, int z);
 
@@ -492,7 +511,7 @@ public class Volume {
 	/**
 	 * Abstract interface for the input image.
 	 */
-	protected interface InputImage {
+	 interface InputImage {
 
 		public int get(int x, int y, int z);
 
@@ -503,7 +522,7 @@ public class Volume {
 		public void set(int x, int y, int z, int v);
 	}
 
-	protected final class ByteImage implements InputImage {
+	 const class ByteImage implements InputImage {
 
 		protected byte[][] fData;
 		private final int w;
